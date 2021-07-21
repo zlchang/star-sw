@@ -1,4 +1,4 @@
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.174 2020/08/28 19:46:47 genevb Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.178 2021/03/21 03:32:28 genevb Exp $
 
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1007,6 +1007,12 @@ Bfc_st BFC[] = {
   {"P2020a","" ,"",
    "B2020a,ITTF,BAna,iTpcIT,hitfilt,VFMinuit,etofa,btof,mtd,l3onl,emcDY2,epdHit,trgd,ZDCvtx,analysis"
    , "","", "Base chain for year 2020 AA data - no Corr (+ l3, epd, mtd, b/etof, b-emc)",kFALSE},
+  {"B2021a" ,"","",
+   "ry2021a,in,tpcX,UseXgeom,iTpcIT,CorrY,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,picoWrite,picoVtxDefault,picoCovMtxWrite",
+   "","", "Base chain for run 2020 data (tpc)",kFALSE},
+  {"P2021a","" ,"",
+   "B2021a,ITTF,BAna,iTpcIT,hitfilt,VFMinuit,etofa,btof,mtd,l3onl,emcDY2,epdHit,trgd,ZDCvtx,analysis"
+   , "","", "Base chain for year 2020 AA data - no Corr (+ l3, epd, mtd, b/etof, b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
   {"LaserCal","" ,"","db,detDb,tpc_daq,tpcDb,fcf,globT,laser,LaserTest","",""
@@ -1106,6 +1112,7 @@ Bfc_st BFC[] = {
   {"ODistoSmear" ,"" ,"","","" ,"","Distortion smearing accounting for calibration resolutions",kFALSE},
   {"OAbortGap" ,"" ,"","","" ,"","Abort gap cleaning event distortion correction",kFALSE},
   {"AlignSectors","" ,"","","" ,"","WARNING *** Option is OBSOLETE ***",kFALSE},
+  {"EbyET0" ,"" ,"","","" ,"","Event-by-event T0 corrections",kFALSE},
   {"DbRichSca" ,"" ,"","detdb","","", "Force reading of Rich scalers from DB",kFALSE},
   {"EastOff" ,"" ,"","","" ,"","Disactivate East part of tpc",kFALSE},
   {"WestOff" ,"" ,"","","" ,"","Disactivate West part of tpc",kFALSE},
@@ -1629,6 +1636,7 @@ Bfc_st BFC[] = {
   {"picoRead" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"WritesRead picoDST format",kFALSE},
   {"PicoVtxDefault" ,"","","" ,"" ,"","pico Vtx default mode",kFALSE},
   {"PicoVtxVpd" ,"","","-PicoVtxDefault" ,"" ,"","pico Vtx cut on Tof and VPD mode",kFALSE},
+  {"PicoVtxVpdOrDefault","","","-PicoVtxDefault" ,"","","pico Vtx cut on Tof and VPD or default",kFALSE},
   {"PicoVtxFXT" ,"","","-PicoVtxDefault" ,"" ,"","pico Vtx constraint on FXT [198,202] mode",kFALSE},
   {"PicoCovMtxSkip" ,"","","" ,"" ,"","Do not write covariance matrices to picoDst (default)",kFALSE},
   {"PicoCovMtxWrite","","","-PicoCovMtxSkip" ,"" ,"","Write track covariance matrices to picoDst",kFALSE},
@@ -2672,6 +2680,12 @@ Bfc_st BFC[] = {
   {"P2020a","" ,"",
    "B2020a,ITTF,BAna,iTpcIT,hitfilt,VFMinuit,etofa,btof,mtd,l3onl,emcDY2,epdHit,trgd,ZDCvtx,analysis"
    , "","", "Base chain for year 2020 AA data - no Corr (+ l3, epd, mtd, b/etof, b-emc)",kFALSE},
+  {"B2021a" ,"","",
+   "ry2021a,in,tpcX,UseXgeom,iTpcIT,CorrY,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,picoWrite,picoVtxDefault,picoCovMtxWrite",
+   "","", "Base chain for run 2020 data (tpc)",kFALSE},
+  {"P2021a","" ,"",
+   "B2021a,ITTF,BAna,iTpcIT,hitfilt,VFMinuit,etofa,btof,mtd,l3onl,emcDY2,epdHit,trgd,ZDCvtx,analysis"
+   , "","", "Base chain for year 2020 AA data - no Corr (+ l3, epd, mtd, b/etof, b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
   {"LaserCal","" ,"","db,detDb,tpc_daq,tpcDb,fcf,globT,laser,LaserTest","",""
@@ -2771,6 +2785,7 @@ Bfc_st BFC[] = {
   {"ODistoSmear" ,"" ,"","","" ,"","Distortion smearing accounting for calibration resolutions",kFALSE},
   {"OAbortGap" ,"" ,"","","" ,"","Abort gap cleaning event distortion correction",kFALSE},
   {"AlignSectors","" ,"","","" ,"","WARNING *** Option is OBSOLETE ***",kFALSE},
+  {"EbyET0" ,"" ,"","","" ,"","Event-by-event T0 corrections",kFALSE},
   {"DbRichSca" ,"" ,"","detdb","","", "Force reading of Rich scalers from DB",kFALSE},
   {"EastOff" ,"" ,"","","" ,"","Disactivate East part of tpc",kFALSE},
   {"WestOff" ,"" ,"","","" ,"","Disactivate West part of tpc",kFALSE},
@@ -3294,6 +3309,7 @@ Bfc_st BFC[] = {
   {"picoRead" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"WritesRead picoDST format",kFALSE},
   {"PicoVtxDefault" ,"","","" ,"" ,"","pico Vtx default mode",kFALSE},
   {"PicoVtxVpd" ,"","","-PicoVtxDefault" ,"" ,"","pico Vtx cut on Tof and VPD mode",kFALSE},
+  {"PicoVtxVpdOrDefault","","","-PicoVtxDefault" ,"","","pico Vtx cut on Tof and VPD or default",kFALSE},
   {"PicoVtxFXT" ,"","","-PicoVtxDefault" ,"" ,"","pico Vtx constraint on FXT [198,202] mode",kFALSE},
   {"PicoCovMtxSkip" ,"","","" ,"" ,"","Do not write covariance matrices to picoDst (default)",kFALSE},
   {"PicoCovMtxWrite","","","-PicoCovMtxSkip" ,"" ,"","Write track covariance matrices to picoDst",kFALSE},
@@ -3986,6 +4002,7 @@ Int_t StBFChain::Instantiate()
       if ( GetOption("picoRead")  )  mk->SetMode(2);   // possibly more magic
       if ( GetOption("PicoVtxVpd"))           mk->SetAttr("PicoVtxMode", "PicoVtxVpd");
       else if ( GetOption("PicoVtxFXT"))      mk->SetAttr("PicoVtxMode", "PicoVtxFXT");
+      else if ( GetOption("PicoVtxVpdOrDefault"))  mk->SetAttr("PicoVtxMode", "PicoVtxVpdOrDefault");
       else if ( GetOption("PicoVtxDefault"))  mk->SetAttr("PicoVtxMode", "PicoVtxDefault");
       if ( GetOption("PicoCovMtxWrite"))      mk->SetAttr("PicoCovMtxMode", "PicoCovMtxWrite");
       else if ( GetOption("PicoCovMtxSkip"))  mk->SetAttr("PicoCovMtxMode", "PicoCovMtxSkip"); // Default mode
@@ -4101,6 +4118,9 @@ Int_t StBFChain::Instantiate()
 	if( GetOption("OAbortGap"))   mk->SetAttr("OAbortGap"  , kTRUE);
       }
       mk->PrintAttr();
+    }
+    if (maker == "StTpcHitMover" && GetOption("EbyET0")) {
+      mk->SetAttr("EbyET0", kTRUE);
     }
     if ((maker == "StdEdxY2Maker"  || maker == "StTpcHitMover") &&
 	GetOption("EmbeddingShortCut"))  {

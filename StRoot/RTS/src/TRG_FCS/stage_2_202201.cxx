@@ -12,9 +12,10 @@
 // We also assume there is no need to know if this is North or South as
 // the processing is exactly the same. Right??
 
+namespace{
 
-//version2 with top2 & bottom2 rows in trigger, missing far side column
-static const int EtoHmap[15][9][2] = {
+  //version2 with top2 & bottom2 rows in trigger, missing far side column
+  static const int EtoHmap[15][9][2] = {
     { { 0, 0},{ 0, 1},{ 0, 1},{ 0, 2},{ 0, 2},{ 0, 3},{ 0, 4},{ 0, 4},{ 0, 4}},
     { { 0, 0},{ 0, 1},{ 0, 1},{ 0, 2},{ 0, 2},{ 0, 3},{ 0, 4},{ 0, 4},{ 0, 4}},
     { { 1, 0},{ 1, 1},{ 1, 1},{ 1, 2},{ 1, 2},{ 1, 3},{ 1, 4},{ 1, 4},{ 1, 4}},
@@ -30,7 +31,8 @@ static const int EtoHmap[15][9][2] = {
     { { 7, 0},{ 7, 1},{ 7, 1},{ 7, 2},{ 7, 2},{ 7, 3},{ 7, 4},{ 7, 4},{ 7, 4}},
     { { 8, 0},{ 8, 1},{ 8, 1},{ 8, 2},{ 8, 2},{ 8, 3},{ 8, 4},{ 8, 4},{ 8, 4}},
     { { 8, 0},{ 8, 1},{ 8, 1},{ 8, 2},{ 8, 2},{ 8, 3},{ 8, 4},{ 8, 4},{ 8, 4}}
-};
+  } ;
+}
 
 void  fcs_trg_base::stage_2_202201(link_t ecal[], link_t hcal[], link_t pres[], geom_t geo, link_t output[])
 {    

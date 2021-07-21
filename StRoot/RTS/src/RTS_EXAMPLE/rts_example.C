@@ -58,6 +58,8 @@
 #include <TPC/rowlen.h>
 
 #include <DAQ_FCS/daq_fcs.h>
+#include <DAQ_FCS/fcs_data_c.h>
+
 #include <DAQ_STGC/daq_stgc.h>
 
 
@@ -1886,10 +1888,11 @@ static int tinfo_doer(daqReader *rdr, const char *do_print)
 		if(crate_bx_time[i] > 0xffffll) {
 		    corrupt = 1;
 
-		    printf("CORRUPT evt %d:  %s bxtime %lld\n",
+		    printf("CORRUPT evt %d:  %s bxtime %lld %lld\n",
 			   rdr->seq,
 			   confnum2str[i],
-			   crate_bx_time[i]);
+			   crate_bx_time[i],
+			   bx64);
 		}
 	    }
 
@@ -1916,24 +1919,30 @@ static int tinfo_doer(daqReader *rdr, const char *do_print)
 		printf(".... lastdsm[%d]: 0x%04X\n",i,lastdsm[i]) ;
 	    }
 
-            u_int fcs2019 = (lastdsm[4] >> 10) & 1 ;
-	    fcs2019 |= ((lastdsm[4] >> 5) & 1) << 1 ;
-	    fcs2019 |= ((lastdsm[4] >> 7) & 1) << 2 ;
-	    fcs2019 |= ((lastdsm[4] >> 8) & 1) << 3 ;
-	    fcs2019 |= ((lastdsm[4] >> 9) & 1) << 4 ;
-	    fcs2019 |= ((lastdsm[4] >> 12) & 1) << 5 ;
-	    fcs2019 |= ((lastdsm[4] >> 13) & 1) << 6 ;
-	    fcs2019 |= ((lastdsm[4] >> 14) & 1) << 7 ;
-	    fcs2019 |= ((lastdsm[4] >> 15) & 1) << 8 ;
+	    // The first line is bit 10 in Hank's list counting from the top
+	    // of his list. This translates to my FCS bit 0.
+	    // And so on... look at the shifts (>>) in lastdsm[4] to get to
+	    // "Hank's bits". And note the mess...
+	    // On the right, in comments is Hank's name of the bit...
+
+            u_int fcs2019 = (lastdsm[4] >> 10) & 1 ;	// bit 0: REVTICKIN-4
+	    fcs2019 |= ((lastdsm[4] >> 5) & 1) << 1 ;	// bit 1: FCSIN-0
+	    fcs2019 |= ((lastdsm[4] >> 7) & 1) << 2 ;	// bit 2: FCSIN-1	
+	    fcs2019 |= ((lastdsm[4] >> 8) & 1) << 3 ;	// bit 3: FCSIN-2
+	    fcs2019 |= ((lastdsm[4] >> 9) & 1) << 4 ;	// bit 4: FCSIN-3
+	    fcs2019 |= ((lastdsm[4] >> 12) & 1) << 5 ;	// bit 5: FCSIN-4
+	    fcs2019 |= ((lastdsm[4] >> 13) & 1) << 6 ;	// bit 6: FCSIN-5
+	    fcs2019 |= ((lastdsm[4] >> 14) & 1) << 7 ;	// bit 7: FCSIN-6
+	    fcs2019 |= ((lastdsm[4] >> 15) & 1) << 8 ;	// bit 8: FCSIN-7 -- never fires?
 
 
-            printf("bc7bit %d, fcs2019 0x%04X : 0x%04X 0x%04X 0x%04X 0x%04X\n",bc7bit,fcs2019,
+            printf("bc7bit %3d, fcs2019 0x%04X : 0x%04X 0x%04X 0x%04X 0x%04X\n",bc7bit,fcs2019,
 		   lastdsm[0],lastdsm[1],lastdsm[2],lastdsm[3]) ;
 
 	    printf("ids: ");
 	    for(int i=0;i<64;i++) {
 		if(rdr->daqbits64 & (1ll << i)) {
-		    printf("{%d}",rdr->getOfflineId(i));
+		    printf("{%d=%d}",i,rdr->getOfflineId(i));
 		}
 	    }
 
@@ -2456,7 +2465,7 @@ static int itpc_doer(daqReader *rdr, const char *do_print)
 
 
 
-				for(int i=0;i<dd->ncontent;i++) {
+				for(u_int i=0;i<dd->ncontent;i++) {
 				    adctb[dd->adc[i].tb] += dd->adc[i].adc;
 				}
 
@@ -2617,8 +2626,11 @@ static int fcs_doer(daqReader *rdr, const char *do_print)
 {
 	int raw_found = 0 ;
 	int zs_found = 0 ;
+	int ped_found = 0 ;
+
 	char want_adc = 0 ;
 	char want_zs = 0 ;
+	char want_ped = 0 ;
 
 	daq_dta *dd ;
 
@@ -2628,6 +2640,7 @@ static int fcs_doer(daqReader *rdr, const char *do_print)
 	if(print_mode==0) {	// default 
 		want_adc = 1 ;
 		want_zs = 1 ;
+		want_ped = 1 ;
 	}
 
 	if(print_mode & 1) {
@@ -2637,7 +2650,31 @@ static int fcs_doer(daqReader *rdr, const char *do_print)
 		want_zs = 1 ;
 	}
 
+	if(print_mode & 3) {
+		want_ped = 1 ;
+	}
 
+
+	dd = rdr->det("fcs")->get("ped") ;
+	while(dd && dd->iterate()) {
+		struct fcs_data_c::fcs_ped_inline_t *p ;
+
+		ped_found = 1 ;
+
+		p = (fcs_data_c::fcs_ped_inline_t *)dd->Void ;
+
+		if(do_print && want_ped) {
+			printf("FCS PED: %d: S%02d:%d: %d:%d:%d (V%d)\n",good,dd->sec,dd->rdo,
+			       p->det,p->ns,p->dep,p->fmt_version) ;
+
+			for(int c=0;c<32;c++) {
+				printf(" ch %02d: ped %6.3f, gain %6.3f\n",c,
+				       (double)p->ped[c].ped/8.0,(double)p->ped[c].gain/256.0) ;
+			}
+
+		}
+
+	}
 #if 0
 
 	dd = rdr->det("fcs")->get("raw") ;
@@ -2726,7 +2763,12 @@ static int fcs_doer(daqReader *rdr, const char *do_print)
 		strcat(fstr,"ADC") ;
 	}
 
-	if(raw_found || zs_found) {
+	if(ped_found) {
+		strcat(fstr," PED") ;
+	}
+
+
+	if(raw_found || zs_found || ped_found) {
 		LOG(INFO,"FCS found [%s]",fstr) ;
 	}
 
@@ -2736,7 +2778,9 @@ static int fcs_doer(daqReader *rdr, const char *do_print)
 
 static int stgc_doer(daqReader *rdr, const char *do_print)
 {
-	int raw_found = 0 ;
+	int altro_found = 0 ;
+	int vmm_found = 0 ;
+
 	daq_dta *dd ;
 
 	if(strcasestr(do_print,"stgc")) ;	// leave as is...
@@ -2750,7 +2794,7 @@ static int stgc_doer(daqReader *rdr, const char *do_print)
 
 	if(dd) {
 		while(dd->iterate()) {	//per xing and per RDO
-			raw_found = 1 ;
+			altro_found = 1 ;
 
 			if(do_print) {
 				printf("STGC RAW: sec %02d, RDO %d: bytes %d\n",dd->sec,dd->rdo,dd->ncontent) ;
@@ -2767,31 +2811,55 @@ static int stgc_doer(daqReader *rdr, const char *do_print)
 #endif
 
 	
-	for(int r=1;r<=6;r++) {
-		dd = rdr->det("stgc")->get("altro",r) ;	
 
-		while(dd && dd->iterate()) {	//per xing and per RDO
-//			if(raw_found==0 && do_print) printf("STGC event\n") ;
-			raw_found = 1 ;
+	dd = rdr->det("stgc")->get("altro") ;	
 
-			if(do_print) {
-				printf("STGC ALTRO: sec %02d, RDO %d: ALTRO %3d:%d\n",dd->sec,r,dd->row,dd->pad) ;
+	while(dd && dd->iterate()) {	
+		altro_found = 1 ;
 
-				for(u_int i=0;i<dd->ncontent;i++) {
-					printf("    %3d %3d\n",dd->adc[i].tb,dd->adc[i].adc) ;
-				}
+		if(do_print) {
+			// there is NO RDO in the bank
+			printf("STGC ALTRO: evt %d: sec %d, ALTRO %2d(FEE%02d):%02d\n",good,dd->sec,dd->row,dd->row/2,dd->pad) ;
+
+			for(u_int i=0;i<dd->ncontent;i++) {
+				printf("    %3d %3d\n",dd->adc[i].tb,dd->adc[i].adc) ;
 			}
-
 		}
-
 	}
 
 
-	if(raw_found) {
-		LOG(INFO,"STGC found") ;
+	dd = rdr->det("stgc")->get("vmm") ;
+
+	while(dd && dd->iterate()) {	
+		vmm_found = 1 ;
+
+		if(do_print) {
+			// there is NO RDO in the bank
+			printf("STGC VMM: evt %d: sec %d, RDO %d\n",good,dd->sec,dd->rdo) ;
+
+			struct stgc_vmm_t *vmm = (stgc_vmm_t *)dd->Void ;
+			for(u_int i=0;i<dd->ncontent;i++) {
+				u_char feb = vmm[i].feb_vmm >> 2 ;	// feb [0..5]
+				u_char vm = vmm[i].feb_vmm & 3 ;	// VMM [0..3]
+
+				printf("  FEB %d:%d, ch %02d: ADC %d, BCID %d\n",feb,vm,vmm[i].ch,
+				       vmm[i].adc,vmm[i].bcid) ;
+			}
+		}
 	}
 
-	return raw_found ;
+	if(altro_found || vmm_found) {
+		char fstr[64] ;
+
+		strcpy(fstr,"STGC found: ") ;
+
+		if(altro_found) strcat(fstr,"ALTRO ") ;
+		if(vmm_found) strcat(fstr,"VMM ") ;
+
+		LOG(INFO,"%s",fstr) ;
+	}
+
+	return (altro_found || vmm_found) ;
 
 }
 

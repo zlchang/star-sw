@@ -28,7 +28,8 @@ private:
     
     daq_dta *dd;
     JevpPlot **mPlots;
-    int mCrtDepT=0;
+    int mEvt=-1;
+    int mPhyLed=-1;
 
     //*** Histogram Declarations...
     //*** Use the union to be able to treat in bulk
@@ -40,10 +41,11 @@ private:
 	    TH2 *h_fcs_crt_depch_tbin[5];
 	    TH2 *h_fcs_det_hitmap[3];
 	    TH2 *h_fcs_ehpns_id_adcsum[3][2];
+  	    TH2 *h_fcs_det_tbin_adc[3];
 	}; 
     } contents;
     
     //*** End Histogram Declarations...
         
-    ClassDef(fcsBuilder, 1);
+    ClassDef(fcsBuilder, 2);
 };

@@ -25,7 +25,7 @@
 
 class JevpServer;
 
-#define DEFAULT_CLIENTDATADIR "/a/jevp/client"
+#define DEFAULT_CLIENTDATADIR "."
 
 
 #define PCPC(x) dbgCallSourceLine=__LINE__;dbgCallParam=x
@@ -125,9 +125,14 @@ class JevpPlotSet : public TObject {
 
   //StTriggerData *getStTriggerData(daqReader *rdr);
 
+  void logDbVariable(char *variable_name, double value);
+  static void staticLogDbVariable(char *name, double value, int my_run, int my_time, char *my_plotsetname, char *my_clientdatadir);
+  
  private:
 
   JevpServer *parent;
+
+  u_int lastevttm;
 
   int disabled;
   int run;
@@ -163,7 +168,7 @@ class JevpPlotSet : public TObject {
   double n_pertrg[64];
   double avg_time_pertrg[64];
 
-
+ 
 
  public:
   ClassDef(JevpPlotSet, 1);

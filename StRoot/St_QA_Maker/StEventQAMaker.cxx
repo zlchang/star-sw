@@ -26,6 +26,7 @@
 #include "StEmcUtil/geometry/StEmcGeom.h"
 #include "StEmcUtil/others/StEmcMath.h"
 #include "StBichsel/Bichsel.h"
+#include "StDetectorDbMaker/StDetectorDbTriggerID.h"
 
 #include "StPmdUtil/StPmdCollection.h"
 #include "StPmdUtil/StPmdDetector.h"
@@ -179,7 +180,7 @@ Int_t StEventQAMaker::Make() {
     }
     BookHistTrigger();
   }
-  UInt_t tword = 0;
+  uint64_t tword = 0;
   Bool_t doEvent = kTRUE;
   Int_t evClasses[32];
   memset(evClasses,0,32*sizeof(Int_t));
@@ -354,15 +355,20 @@ Int_t StEventQAMaker::Make() {
   if (run_year < 13) ftpHists = kTRUE; // Removed for run12 on
 
   
-  for (int bitn=0; bitn<32; bitn++) {
-    if (tword>>(bitn) & 1U)
-      mTrigBits->Fill((Float_t) bitn);
-  }
-  
   if (!doEvent) {
     gMessMgr->Message() << "StEventQAMaker::Make(): "
     << "skipping because trigger word=" << tword << endm;
     return kStOk;
+  }
+
+  StDetectorDbTriggerID* dbTriggerId = StDetectorDbTriggerID::instance();
+  for (unsigned int iTrg=0; iTrg < (dbTriggerId ? dbTriggerId->getIDNumRows() : 0); iTrg++) {
+    UInt_t daqid = dbTriggerId->getDaqTrgId(iTrg);
+    if (tword>>(daqid) & 1U)
+      mTrigBits->Fill((Float_t) daqid);
+    // getName() via L0 doesn't work in year 2000 (run_year=1)
+    if (run_year > 1 && strlen(mTrigBits->GetXaxis()->GetBinLabel(daqid+1))<2)
+      mTrigBits->GetXaxis()->SetBinLabel(daqid+1,dbTriggerId->getName(iTrg));
   }
   
   if (!mNullPrimVtx) BookHist();
@@ -2936,8 +2942,17 @@ void StEventQAMaker::MakeHistiTPC() {
 }
 
 //_____________________________________________________________________________
-// $Id: StEventQAMaker.cxx,v 2.138 2019/05/22 21:24:31 genevb Exp $
+// $Id: StEventQAMaker.cxx,v 2.141 2021/03/20 16:10:54 genevb Exp $
 // $Log: StEventQAMaker.cxx,v $
+// Revision 2.141  2021/03/20 16:10:54  genevb
+// Trigger ID names only available from year 2001 on
+//
+// Revision 2.140  2021/03/19 15:21:29  genevb
+// Only look at trigger information if trigger word is valid
+//
+// Revision 2.139  2021/03/18 21:35:48  genevb
+// Re-work the trigger bits plot to have actual trigger names
+//
 // Revision 2.138  2019/05/22 21:24:31  genevb
 // Add sDCA vs. time-in-run
 //

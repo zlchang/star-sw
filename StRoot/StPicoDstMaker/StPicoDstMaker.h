@@ -185,7 +185,7 @@ class StPicoDstMaker : public StMaker {
   void setBranchAddresses(TChain*);
 
   /// Build EMC indexes
-  void buildEmcIndex();
+  void buildEmcIndex(StEmcCollection*);
   /// Initialize EMC related arrays
   void initEmc();
   /// Finish EMC
@@ -225,6 +225,11 @@ class StPicoDstMaker : public StMaker {
   void fillBbcHits();
   /// Fill ETOF information
   void fillETofHits();
+  /// Fill MC vertex information
+  void fillMcVertices();
+  /// Fill MC track information
+  void fillMcTracks();
+
 
  /**
   * Returns various measurements by the BEMC and BSMD detectors corresponding to
@@ -340,7 +345,7 @@ class StPicoDstMaker : public StMaker {
 
   /// Get CVS status
   virtual const char *GetCVS() const {
-    static const char cvs[]="Tag $Name:  $ $Id: StPicoDstMaker.h,v 1.28 2020/08/28 16:47:28 gnigmat Exp $ built " __DATE__ " " __TIME__ ;
+    static const char cvs[]="Tag $Name:  $ $Id: StPicoDstMaker.h,v 1.30 2021/02/23 17:27:01 gnigmat Exp $ built " __DATE__ " " __TIME__ ;
     return cvs;
   }
 

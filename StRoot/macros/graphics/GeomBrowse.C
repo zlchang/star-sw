@@ -20,7 +20,7 @@ void GeomDrawUsage() {
           printf("One always can select the geometry from the \"file menu\" of the GUI interface later on too\n");          
           printf("\n");                
           printf("---------------\n"); 
-          printf("\n$Id: GeomBrowse.C,v 1.15 2010/05/27 17:03:56 fine Exp $\n");
+          printf("\n$Id: GeomBrowse.C,v 1.17 2021/03/20 02:38:13 genevb Exp $\n");
 }                 
 //_____________________________________________________________________________________________________________
 StGeomBrowser *GeomBrowse(const char *fzFile="y2009")

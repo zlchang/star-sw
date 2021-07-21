@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: doEvents.C,v 1.109 2010/03/16 16:23:09 fisyak Exp $
+// $Id: doEvents.C,v 1.111 2021/03/20 02:38:13 genevb Exp $
 // Description: 
 // Chain to read events from files or database into StEvent and analyze.
 // what it does: reads .dst.root or .xdf files and then runs StEventMaker
@@ -486,6 +486,12 @@ int gcInit(const char *request)
 //____________________________________________________________________________
 //////////////////////////////////////////////////////////////////////////////
 // $Log: doEvents.C,v $
+// Revision 1.111  2021/03/20 02:38:13  genevb
+// Remove StTpcDb dependence for StEventUtilities
+//
+// Revision 1.110  2021/03/19 14:49:29  genevb
+// Add StTpcDb dependency for StEvenntUtilities
+//
 // Revision 1.109  2010/03/16 16:23:09  fisyak
 // StTpcDb requires StDetectorDbMaker
 //
