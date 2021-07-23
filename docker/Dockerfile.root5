@@ -88,9 +88,4 @@ RUN source star-spack/setup.sh && spack env activate star-env-root5 \
  && cd /usr/include && ln -s $MYSQL/include mysql \
  && cd /star-sw \
  && cons +StarVMC/Geometry \
- && cons %pams/sim/g2r %OnlTools \
-         %StarVMC/GeoTestMaker \
-         %StRoot/StarGenerator/Kinematics \
-         %StRoot/StEEmcPool %StRoot/StFgtPool %StRoot/StHighptPool \
-         %StRoot/StJetFinder \
-         %StRoot/StShadowMaker %StRoot/StSpinMaker %StRoot/StHbtMaker
+ && cons %OnlTools
